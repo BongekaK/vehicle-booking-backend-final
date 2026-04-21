@@ -1,0 +1,10 @@
+{
+    "destination":  "Emergency Trip",
+    "requesterName":  "Fleet Manager",
+    "policyAccepted":  true,
+    "passengers":  [
+
+                   ],
+    "passengerCount":  1,
+    "purpose":  "Testing"
+}

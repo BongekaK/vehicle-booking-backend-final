@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-vehicle-booking
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd6633
+      MYSQL_DATABASE: vehicle_booking_db
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  app:
+    build: .
+    container_name: vehicle-booking-app
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/vehicle_booking_db?createDatabaseIfNotExist=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=P@ssw0rd6633
+      - JWT_SECRET=ZXhhbXBsZS1qd3Qtc2Vjcm2V0LWtleS10aGlzLWlzLWZyb20tY2xpLXNvbWV0aGluZw==
+      - SERVER_PORT=8083
+    depends_on:
+      - mysql
+
+  frontend:
+    build:
+      context: ../vehicle-booking-app
+      dockerfile: Dockerfile
+    container_name: vehicle-booking-frontend
+    ports:
+      - "8081:80"
+    depends_on:
+      - app
+
+volumes:
+  mysql-data:

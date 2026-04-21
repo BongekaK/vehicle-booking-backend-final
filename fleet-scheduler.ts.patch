@@ -1,0 +1,29 @@
+To resolve the issue of vehicles still showing "unassigned/pending" on the fleet scheduler, please make the following two changes in your `fleet-scheduler.ts` file:
+
+**Change 1: Standardize Vehicle ID to Lowercase**
+In the `ngOnInit()` method, find the line where `this.vehicles` is populated.
+
+**Old line:**
+```typescript
+        id: v.plate // Use plate as the ID for the lane
+```
+
+**New line:**
+```typescript
+        id: v.plate.toLowerCase() // Standardize to lowercase for consistent comparison
+```
+
+**Change 2: Explicitly Set `allocatedVehicleId` to `null` if not present**
+In the `mapBookingsToEvents()` method, modify the `resourceId` assignment.
+
+**Old line:**
+```typescript
+          resourceId: booking.allocatedVehicleId || 'unassigned',
+```
+
+**New line:**
+```typescript
+          resourceId: booking.allocatedVehicleId ? booking.allocatedVehicleId : 'unassigned',
+```
+
+This ensures that the `id` used for comparison in the frontend (`v.id`) consistently matches the lowercase `allocatedVehicleId` sent from the backend, resolving potential case sensitivity issues. Also, explicitly checking for `allocatedVehicleId` presence ensures proper handling of unassigned vehicles.
