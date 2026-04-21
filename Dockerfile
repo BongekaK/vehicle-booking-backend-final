@@ -1,13 +1,15 @@
-# Stage 1: Build the application
-FROM gradle:8.5.0-jdk17 AS build
-WORKDIR /home/gradle/project
-COPY --chown=gradle:gradle . .
-RUN gradle build --no-daemon -x test
-
-# Stage 2: Create the final image
-FROM amazoncorretto:17-alpine-jdk
+# Step 1: Build the JAR using Maven
+FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /app
-COPY --from=build /home/gradle/project/build/libs/*.jar app.jar
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Use CMD to allow Heroku to pass arguments if needed
-CMD ["java", "-jar", "app.jar"]
+# Step 2: Run the JAR
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+# This grabs the .jar file Maven just created in the target folder
+COPY --from=build /app/target/*.jar app.jar
+
+# Google Cloud Run specifically listens on port 8080
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
